@@ -3,8 +3,6 @@ import numpy as np
 import player.eva0 as eva0
 import player.eva1 as eva1
 
-import learnDQN
-import playDQN
 
 def five(A, B):
     history = []
@@ -71,7 +69,7 @@ def five(A, B):
 
         # 게임 종료
         turn += 1
-        if abs(score) >= 3 or turn >= 6:
+        if abs(score) >= 3 or turn >= 7:
             isEnd = False
 
     # 게임 결과
