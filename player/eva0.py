@@ -1,5 +1,4 @@
 ### simple strategy
-
 def think(hands, history, old_games):
     his_boku = [row[0] for row in history]
     his_teki = [row[1] for row in history]
@@ -22,21 +21,19 @@ def think(hands, history, old_games):
     if len(history) == 5:
         return '2'
 
-###############################################################
+##############################################################################
 
-hands_all = ['5', '4', '3', '2', '1', '!']
 
-history = [['5', '2'], ['4', '3'], ['3', '4'], ['1', '5']]
+if __name__ == '__main__':
+    hands_all = ['5', '4', '3', '2', '1', '!']
+    history = [['5', '2'], ['4', '3'], ['3', '4'], ['1', '5']]
+    hands = hands_all
+    old_games = []
+    print(think(hands, history, old_games))
 
-hands = hands_all
+    action = 1
+    action_idx = round(len(hands) / 10  * action - 0.51)
 
-old_games = []
-
-print(think(hands, history, old_games))
-
-action = 1
-action_idx = round(len(hands) / 10  * action - 0.51)
-
-print(hands)
-print(action_idx)
-print(hands[action_idx])
+    print(hands)
+    print(action_idx)
+    print(hands[action_idx])
