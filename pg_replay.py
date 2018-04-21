@@ -11,7 +11,7 @@ env = envFive()
 
 # hyper
 name = 'eva4'
-CHECK_POINT_DIR = "./save"
+CHECK_POINT_DIR = "./"
 
 input_size = 12
 output_size = 1
@@ -29,7 +29,7 @@ batch_of_observations = [None] + list(ob_space.shape)
 x = tf.placeholder(dtype=tf.float32, shape=batch_of_observations, name="ob")
 ob = x
 
-width = 128
+width = 64
 dense1_w = tf.get_variable("dense1_w", [x.get_shape()[1], width])
 dense1_b = tf.get_variable("dense1_b", [width])
 x = tf.nn.relu(tf.matmul(x, dense1_w) + dense1_b)
@@ -60,17 +60,6 @@ loss = tf.reduce_sum(log_lik * advantages)
 
 # learning (MAGIC)
 train = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
-
-
-def discount_rewards(r, gamma=0.99):
-    """ take 1D float array of rewards and compute discounted reward """
-    discounted_r = np.zeros_like(r, dtype=np.float32)
-    running_add = 0
-    for t in reversed(range(len(r))):
-        running_add = running_add * gamma + r[t]
-        discounted_r[t] = running_add
-
-    return discounted_r
 
 
 # tf session

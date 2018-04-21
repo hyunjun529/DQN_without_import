@@ -62,33 +62,9 @@ loss = tf.reduce_sum(log_lik * advantages)
 train = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
 
-def discount_rewards(r, gamma=0.99):
-    """ take 1D float array of rewards and compute discounted reward """
-    discounted_r = np.zeros_like(r, dtype=np.float32)
-    running_add = 0
-    for t in reversed(range(len(r))):
-        running_add = running_add * gamma + r[t]
-        discounted_r[t] = running_add
-
-    return discounted_r
-
-
 # tf session
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
-
-
-# Savor and Restore
-saver = tf.train.Saver()
-checkpoint = tf.train.get_checkpoint_state(CHECK_POINT_DIR)
-if checkpoint and checkpoint.model_checkpoint_path:
-    try:
-        saver.restore(sess, checkpoint.model_checkpoint_path)
-        print("Successfully loaded:", checkpoint.model_checkpoint_path)
-    except:
-        print("Error on loading old network weights")
-else:
-    print("Could not find old network weights")
 
 
 # run
@@ -122,8 +98,7 @@ for step in range(max_num_episodes):
         reward_sum += reward
         
         if done:
-            # Determine standardized rewards
-            discounted_rewards = discount_rewards(rewards)
+            discounted_rewards = rewards
             # Normalization
             discounted_rewards = (discounted_rewards - discounted_rewards.mean())/(discounted_rewards.std() + 1e-7)
             l, _ = sess.run([loss, train],
@@ -139,7 +114,7 @@ for step in range(max_num_episodes):
     elif info[0] < info[1]:
         combo = 0
 
-    if combo > 5:
+    if combo > 9:
         if not os.path.exists(CHECK_POINT_DIR):
             os.makedirs(CHECK_POINT_DIR)
         saver.save(sess, CHECK_POINT_DIR, global_step=step)
