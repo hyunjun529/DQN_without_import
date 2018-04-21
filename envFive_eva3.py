@@ -12,13 +12,14 @@ OUTPUT_SIZE = 10
 
 DISCOUNT_RATE = 0.99
 REPLAY_MEMORY = 50000
-MAX_EPISODE = 50000000
+MAX_EPISODE = 100000
 BATCH_SIZE = 64
 
 # minimum epsilon for epsilon greedy
 MIN_E = 0.0
 # epsilon will be `MIN_E` at `EPSILON_DECAYING_EPISODE`
-EPSILON_DECAYING_EPISODE = MAX_EPISODE * 0.01
+#EPSILON_DECAYING_EPISODE = MAX_EPISODE * 0.01
+EPSILON_DECAYING_EPISODE = MAX_EPISODE * 0.2
 
 
 class envFive:
@@ -136,7 +137,7 @@ class envFive:
         if abs(self.score) >= 3 or self.turn >= 7:
             done = True
 
-        return state, reward, done, info
+        return state, reward, done, [self.record_win, self.record_lose, self.record_draw]
 
 
 def annealing_epsilon(episode: int, min_e: float, max_e: float, target_episode: int) -> float:
@@ -167,12 +168,16 @@ def train_minibatch(DQN: dqn.DQN, train_batch: list) -> float:
 
 env = envFive()
 
-
 if __name__ == '__main__':
     print("HELL WORLD")
     replay_buffer = deque(maxlen=REPLAY_MEMORY)
     last_100_game_reward = deque(maxlen=100)
     
+    # 연쇄를 끊는다...크큭
+    combo = 0
+    max_combo = 17
+    endgame = False
+
     with tf.Session() as sess:
         mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE)
         init = tf.global_variables_initializer()
@@ -182,7 +187,8 @@ if __name__ == '__main__':
             e = annealing_epsilon(episode, MIN_E, 1.0, EPSILON_DECAYING_EPISODE)
             done = False
             state = env.reset()
-
+            info = []
+            
             step_count = 0
             while not done:
 
@@ -191,7 +197,7 @@ if __name__ == '__main__':
                 else:
                     action = np.argmax(mainDQN.predict(state))
 
-                next_state, reward, done, _ = env.step(action)
+                next_state, reward, done, info = env.step(action)
 
                 if done:
                     reward = -1
@@ -201,14 +207,38 @@ if __name__ == '__main__':
                 state = next_state
                 step_count += 1
 
-                if len(replay_buffer) > BATCH_SIZE:
+                if len(replay_buffer) > BATCH_SIZE and not endgame:
                     minibatch = random.sample(replay_buffer, BATCH_SIZE)
                     train_minibatch(mainDQN, minibatch)
 
-            # print("[Episode {:>5}]  steps: {:>5} e: {:>5.2f}".format(episode, step_count, e))
+            # 한 게임에서 승패여부 판정 및 출력
+            #print("[Episode {:>5}]  steps: {:>5} e: {:>5.2f}".format(episode, step_count, e))
+            result = "?"
+            if info[0] > info[1]:
+                result = "승리"
+                combo += 1
+            elif info[0] < info[1]:
+                result = "패배"
+                combo = 0
+            else:
+                result = "동점"
 
+            if combo > 11:
+                print(str(episode) + " : " + result + " : " + str(combo))
+
+            # 최근 100 게임의 평균 측정
             last_100_game_reward.append(step_count)
             if len(last_100_game_reward) == last_100_game_reward.maxlen:
                 avg_reward = np.mean(last_100_game_reward)
-                if avg_reward > 4.5:
-                    print("Reached goal within {} episodes with avg reward {}".format(episode, avg_reward))
+                if avg_reward > 4.55:
+                    print("Reached goal within {} episodes with avg reward {}, combo {}".format(episode, avg_reward, combo))
+
+            if not endgame and combo >= max_combo:
+                print(str(max_combo) + "분할!")
+                endgame = True
+
+        # 모델 저장
+        CHECK_POINT_DIR = "./save/"
+        if not os.path.exists(CHECK_POINT_DIR):
+            os.makedirs(CHECK_POINT_DIR)
+        saver.save(sess, CHECK_POINT_DIR + "00", global_step=global_step)
