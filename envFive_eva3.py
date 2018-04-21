@@ -120,15 +120,12 @@ if __name__ == '__main__':
             last_100_game_reward.append(step_count)
             if len(last_100_game_reward) == last_100_game_reward.maxlen:
                 avg_reward = np.mean(last_100_game_reward)
-                if avg_reward > 4.55:
+                if avg_reward > 4.69:
                     print("Reached goal within {} episodes with avg reward {}, combo {}".format(episode, avg_reward, combo))
+                if combo > 5 and e == 0:
+                     saver.save(sess, CHECK_POINT_DIR, global_step=episode)
 
             if not endgame and combo >= max_combo:
                 print(str(max_combo) + "분할!")
                 endgame = True
-
-            # 모델 저장
-            if combo > 11:
-                if not os.path.exists(CHECK_POINT_DIR):
-                    os.makedirs(CHECK_POINT_DIR)
-                saver.save(sess, CHECK_POINT_DIR, global_step=episode)
+            
