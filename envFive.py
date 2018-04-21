@@ -1,4 +1,5 @@
 from random import randint
+from random import uniform
 
 class envFive:
     def __init__(self):
@@ -34,7 +35,10 @@ class envFive:
         return state
     
     def getRandomCardA(self):
-        return randint(0, 9)
+        # ~eva3
+        #return randint(0, 9)
+        # eva4
+        return uniform(0, 1)
 
     def getRandomCardB(self):
         return self.hands_B[randint(1, len(self.hands_B)) - 1]
@@ -45,7 +49,10 @@ class envFive:
         done = False
         info = ["info"]
 
-        action_idx = int(round(len(self.hands_A) / 10  * (action + 1) - 0.51))
+        # ~eva3
+        #action_idx = int(round(len(self.hands_A) / 10  * (action + 1) - 0.51))
+        # eva4
+        action_idx = int(round(action * (len(self.hands_A) - 1)))
         
         play_A = self.hands_A[action_idx]
         play_B = self.getRandomCardB()
