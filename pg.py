@@ -11,7 +11,7 @@ env = envFive()
 
 # hyper
 name = 'eva4'
-CHECK_POINT_DIR = "./save"
+CHECK_POINT_DIR = "./tmp"
 
 input_size = 12
 output_size = 1
@@ -65,6 +65,8 @@ train = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 # tf session
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
+
+saver = tf.train.Saver()
 
 
 # run

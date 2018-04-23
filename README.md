@@ -1,6 +1,6 @@
-# TF로 학습하고 TF 없이 재생하는 방법 정리
+# TF로 학습하고 TF 없이 재생하기
 
-참고링크
+참고 링크
 
 - [ReinforcementZeroToAll](https://github.com/hunkim/ReinforcementZeroToAll/blob/adc1ade933504f7e57a76245314afb8c317381bd/08_1_pg_cartpole.py)
 

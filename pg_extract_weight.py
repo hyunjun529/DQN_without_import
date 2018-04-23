@@ -79,28 +79,20 @@ if checkpoint and checkpoint.model_checkpoint_path:
 else:
     print("Could not find old network weights")
 
+# it's danger!
+np.set_printoptions(precision=5, suppress=True)
 
-# replay
-observation = env.reset()
+print(dense1_w)
+print(dense1_b)
+print(final_w)
+print(final_b)
 
-cnt_win = 0
-cnt_lose = 0
-cnt_draw = 0
+array = dense1_w.eval(sess)
+print (array)
+array = dense1_b.eval(sess)
+print (array)
 
-while True:
-    x = np.reshape(observation, [1, input_size])
-    action_prob = sess.run(action_pred, feed_dict={ob: x})
-    action = action_prob[0][0] # only 1 action..
-    observation, reward, done, info = env.step(action)
-    if done:
-        if info[0] > info[1]:
-            cnt_win += 1
-        elif info[0] < info[1]:
-            cnt_lose += 1
-        else:
-            cnt_draw += 1
-        if (cnt_win + cnt_lose + cnt_draw) % 200 == 0:
-            print(" : {}승 {}패 {}무 ({})".format(cnt_win,cnt_lose,cnt_draw,(cnt_win)/(cnt_win+cnt_lose+0.001)))
-        observation = env.reset()
-
-sess.close()
+array = final_w.eval(sess)
+print (array)
+array = final_b.eval(sess)
+print (array)
